@@ -76,22 +76,22 @@ def run(ceph_cluster, **kw):
     file_count = int(config.get("file_count", "3"))
 
     try:
-        # deploy smb services
-        deploy_smb_service_imperative(
-            installer,
-            cephfs_vol,
-            smb_subvol_group,
-            smb_subvols,
-            smb_subvolume_mode,
-            smb_cluster_id,
-            auth_mode,
-            smb_user_name,
-            smb_user_password,
-            smb_shares,
-            path,
-            domain_realm,
-            custom_dns,
-        )
+        # # deploy smb services
+        # deploy_smb_service_imperative(
+        #     installer,
+        #     cephfs_vol,
+        #     smb_subvol_group,
+        #     smb_subvols,
+        #     smb_subvolume_mode,
+        #     smb_cluster_id,
+        #     auth_mode,
+        #     smb_user_name,
+        #     smb_user_password,
+        #     smb_shares,
+        #     path,
+        #     domain_realm,
+        #     custom_dns,
+        # )
 
         # Check smb share using smbclient
         smbclient_check_shares(
@@ -121,6 +121,9 @@ def run(ceph_cluster, **kw):
         out = client.exec_command(sudo=True,cmd=cmd)
         if "No such file or directory" in out:
             raise OperationFailedError(".snap directory is not enabled")
+        else:
+            out = client.exec_command(sudo=True, cmd="pwd")
+            log.info(".snap directory is accessible, the path : {}".format(out))
 
         # # Create file on share and create snapshot
         # create_files(client, cifs_mount_point, file_count)
