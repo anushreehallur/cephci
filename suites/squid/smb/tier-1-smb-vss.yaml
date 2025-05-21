@@ -101,3 +101,63 @@ tests:
         path: "/"
         smb_conf:
           - vfs objects: ceph_snapshots
+
+  - test:
+      name: Verify .snap directory is accessible on share.
+      desc: Verify .snap directory is accessible on share.
+      module: smb_vss_operations.py
+#      polarion-id: CEPH-83617639
+      config:
+        cephfs_volume: cephfs
+        smb_subvolume_group: smb
+        smb_subvolumes: [ sv1 ]
+        smb_subvolume_mode: '0777'
+        smb_cluster_id: smb1
+        auth_mode: user
+        smb_user_name: user1
+        smb_user_password: passwd
+        smb_shares: [ share1 ]
+        path: "/"
+        cifs_mount_point: "/mnt/smb"
+
+#  - test:
+#      name: Verify IO runs over cifs mount
+#      desc: Verify IO runs over cifs mount
+#      module: smb_cifs_mount.py
+#      polarion-id: CEPH-83594252
+#      config:
+#        cephfs_volume: cephfs
+#        smb_subvolume_group: smb
+#        smb_subvolumes: [ sv1 ]
+#        smb_subvolume_mode: '0777'
+#        smb_cluster_id: smb1
+#        auth_mode: user
+#        smb_user_name: user1
+#        smb_user_password: passwd
+#        smb_shares: [ share1 ]
+#        path: "/"
+#        cifs_mount_point: "/mnt/smb"
+#        file_count: 10
+
+#  - test:
+#      name: Verify snapshot creation and list snapshots
+#      desc: Verify snapshot creation and list snapshots after mounting share on windows client and file creation.
+#      module: smb_vss_operations.py
+#      #      polarion-id: CEPH-83617639
+#      config:
+#        cephfs_volume: cephfs
+#        smb_subvolume_group: smb
+#        smb_subvolumes: [ sv1 ]
+#        smb_subvolume_mode: '0777'
+#        smb_cluster_id: smb1
+#        auth_mode: user
+#        smb_user_name: user1
+#        smb_user_password: passwd
+#        smb_shares: [ share1 ]
+#        path: "/"
+#        cifs_mount_point: "/mnt/smb"
+#        file_count: 1
+#        snap_name: snap1
+
+
+
