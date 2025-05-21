@@ -122,7 +122,7 @@ def run(ceph_cluster, **kw):
         if "No such file or directory" in out:
             raise OperationFailedError(".snap directory is not enabled")
         else:
-            out = client.exec_command(sudo=True, cmd="pwd")
+            out = client.exec_command(sudo=True, cmd="cd /mnt/smb/.snap && pwd")
             log.info(".snap directory is accessible, the path : {}".format(out))
 
         # # Create file on share and create snapshot
@@ -136,14 +136,14 @@ def run(ceph_cluster, **kw):
     except Exception as e:
         log.error(f"Failed to deploy samba with auth_mode {auth_mode} : {e}")
         return 1
-    # finally:
-    #     client.exec_command(
-    #         sudo=True,
-    #         cmd=f"umount {cifs_mount_point}",
-    #     )
-    #     client.exec_command(
-    #         sudo=True,
-    #         cmd=f"rm -rf {cifs_mount_point}",
-    #     )
+    finally:
+        client.exec_command(
+            sudo=True,
+            cmd=f"umount {cifs_mount_point}",
+        )
+        client.exec_command(
+            sudo=True,
+            cmd=f"rm -rf {cifs_mount_point}",
+        )
     #     smb_cleanup(installer, smb_shares, smb_cluster_id)
     return 0
