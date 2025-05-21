@@ -117,9 +117,9 @@ def run(ceph_cluster, **kw):
         )
 
         # Check .snap Directory
-        cmd = f"cd /mnt/smb/volumes/{cephfs_vol}/{smb_subvol_group}/{smb_subvols[0]}/{smb_shares[0]}/.snap"
+        cmd = f"cd /mnt/smb/.snap"
         out = client.exec_command(sudo=True,cmd=cmd)
-        if "no such file or directory" in out:
+        if "No such file or directory" in out:
             raise OperationFailedError(".snap directory is not enabled")
 
         # # Create file on share and create snapshot
