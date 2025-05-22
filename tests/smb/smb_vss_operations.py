@@ -127,9 +127,10 @@ def run(ceph_cluster, **kw):
 
         # Create file on share and create snapshot
         # create_files(client, cifs_mount_point, file_count)
-        cmd = (f"cat > /mnt/smb/file.txt <<EOF "
-               f" Hello! "
-               f"EOF")
+        cmd = '''cat << EOF >file1.txt
+        Hello!
+        EOF
+        '''
         client.exec_command(sudo=True, cmd=cmd)
 
         cmd1 = f"cd /mnt/smb/ && ceph fs subvolume snapshot create {cephfs_vol} {smb_subvols[0]} {snap} {smb_subvol_group}"
