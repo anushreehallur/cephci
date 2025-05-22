@@ -134,9 +134,14 @@ def run(ceph_cluster, **kw):
         client.exec_command(sudo=True, cmd=cmd)
 
         cmd1 = f"cd /mnt/smb/ && ceph fs subvolume snapshot create {cephfs_vol} {smb_subvols[0]} {snap} {smb_subvol_group}"
-        client.exec_command(sudo=True, cmd=cmd1)
+        log.info(f"cd /mnt/smb/ && ceph fs subvolume snapshot create {cephfs_vol} {smb_subvols[0]} {snap} {smb_subvol_group}")
+
+        out1 = client.exec_command(sudo=True, cmd=cmd1)
+        log.info(f"output1:{out1}")
         cmd2 = f"cd /mnt/smb/ && ceph fs subvolume snapshot ls {cephfs_vol} {smb_subvols[0]} {smb_subvol_group}"
+        log.info(f"cd /mnt/smb/ && ceph fs subvolume snapshot ls {cephfs_vol} {smb_subvols[0]} {smb_subvol_group}")
         out2 = client.exec_command(sudo=True, cmd=cmd2)
+        log.info(f"output2:{out2}")
         if snap not in out2:
             raise OperationFailedError("Snapshot is not created")
         else:
