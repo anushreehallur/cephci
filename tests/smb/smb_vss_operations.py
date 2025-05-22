@@ -119,6 +119,7 @@ def run(ceph_cluster, **kw):
         # Check .snap Directory
         cmd = f"cd /mnt/smb/.snap"
         out = client.exec_command(sudo=True,cmd=cmd)
+        log.info(f"output0:{out}")
         if "No such file or directory" in out:
             raise OperationFailedError(".snap directory is not enabled")
         else:
@@ -142,7 +143,7 @@ def run(ceph_cluster, **kw):
         log.info(f"cd /mnt/smb/ && ceph fs subvolume snapshot ls {cephfs_vol} {smb_subvols[0]} {smb_subvol_group}")
         out2 = client.exec_command(sudo=True, cmd=cmd2)
         log.info(f"output2:{out2}")
-        if snap not in out2:
+        if snap not in out2[0]:
             raise OperationFailedError("Snapshot is not created")
         else:
             out = client.exec_command(sudo=True, cmd="cd /mnt/smb/.snap && ls -al")
