@@ -125,9 +125,17 @@ def run(ceph_cluster, **kw):
             out = client.exec_command(sudo=True, cmd="cd /mnt/smb/.snap && pwd")
             log.info(".snap directory is accessible, the path : {}".format(out))
 
-        # # Create file on share and create snapshot
+        # Create file on share and create snapshot
         # create_files(client, cifs_mount_point, file_count)
-        # cmd = f""
+        cmd = f"cat > filename.txt <<EOF Hello! EOF"
+        client.exec_command(sudo=True, cmd=cmd)
+
+        cmd1 = f"ceph fs subvolume snapshot create {cephfs_vol} {smb_subvols[0]} {snap} {smb_subvol_group}"
+        client.exec_command(sudo=True, cmd=cmd1)
+        cmd2 = f"ceph fs subvolume snapshot ls {cephfs_vol} {smb_subvols[0]} {smb_subvol_group}"
+        out = client.exec_command(sudo=True, cmd=cmd2)
+        if snap not in out:
+            raise OperationFailedError("Snapshot is not created")
 
 
 
