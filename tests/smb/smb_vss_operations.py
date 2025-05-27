@@ -114,8 +114,8 @@ def run(ceph_cluster, **kw):
             domain_realm,
             cifs_mount_point,
         )
+        # Check .snap Directory
         if vss_operation == "Access .snap directory":
-            # Check .snap Directory
             cmd = f"cd {cifs_mount_point}/.snap"
             out = client.exec_command(sudo=True,cmd=cmd)
             if "No such file or directory" in out[0]:
@@ -124,16 +124,18 @@ def run(ceph_cluster, **kw):
                 out = client.exec_command(sudo=True, cmd=f"cd {cifs_mount_point}/.snap && pwd")
                 log.info(".snap directory is accessible, the path : {}".format(out))
 
+        # Verify snapshot creation and list snapshots
         if vss_operation == "Create and list Snapshots":
-            # Verify snapshot creation and list snapshots
+            # Create file on share
             cmd = '''cat << EOF >file1.txt
             Hello!
             EOF
             '''
-            client.exec_command(sudo=True, cmd=cmd)
-
+            out, _ =client.exec_command(sudo=True, cmd=cmd)
+            # Create Snapshot
             cmd1 = f"cd {cifs_mount_point} && ceph fs subvolume snapshot create {cephfs_vol} {smb_subvols[0]} {snap} {smb_subvol_group}"
             client.exec_command(sudo=True, cmd=cmd1)
+            # List Snapshot
             cmd2 = f"cd {cifs_mount_point} && ceph fs subvolume snapshot ls {cephfs_vol} {smb_subvols[0]} {smb_subvol_group}"
             out2 = client.exec_command(sudo=True, cmd=cmd2)
             if snap not in out2[0]:
@@ -141,7 +143,18 @@ def run(ceph_cluster, **kw):
             else:
                 out = client.exec_command(sudo=True, cmd=f"cd {cifs_mount_point}/.snap && ls -al")
                 log.info("Snapshot created {}, snap folder in .snap : {}".format(out2,out))
-
+            # Update the file on share
+            cmd3 = '''cat << EOF >file1.txt
+            Hello! This is updated
+            EOF
+            '''
+            client.exec_command(sudo=True, cmd=cmd)
+            # Access the snapshot in .snap directory
+            cmd4 = f"cd {cifs_mount_point}/.snap/*{snap} && cat file1.txt"
+            out4,_ = client.exec_command(sudo=True, cmd=cmd)
+            # Check if file in snapshot has the old data
+            if out4 != out:
+                raise OperationFailedError("Snapshot of file is not saved")
 
     except Exception as e:
         log.error(f"Failed to deploy samba with auth_mode {auth_mode} : {e}")
