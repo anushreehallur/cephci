@@ -150,7 +150,7 @@ def run(ceph_cluster, **kw):
             '''
             client.exec_command(sudo=True, cmd=cmd3)
             # Access the snapshot in .snap directory
-            cmd4 = f"cd {cifs_mount_point}/.snap/*{snap} && cat file1.txt"
+            cmd4 = f"cd {cifs_mount_point}/.snap/*{snap}* && cat file1.txt"
             out4,_ = client.exec_command(sudo=True, cmd=cmd4)
             # Check if file in snapshot has the old data
             if out4 != out:
