@@ -121,7 +121,7 @@ def run(ceph_cluster, **kw):
             if "No such file or directory" in out[0]:
                 raise OperationFailedError(".snap directory is not enabled")
             else:
-                out = client.exec_command(sudo=True, cmd="cd {cifs_mount_point}/.snap && pwd")
+                out = client.exec_command(sudo=True, cmd=f"cd {cifs_mount_point}/.snap && pwd")
                 log.info(".snap directory is accessible, the path : {}".format(out))
 
         if vss_operation == "Create and list Snapshots":
