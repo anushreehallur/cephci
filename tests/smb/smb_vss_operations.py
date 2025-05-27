@@ -5,7 +5,6 @@ from smb_operations import (
     smbclient_check_shares,
 )
 
-from cli.utilities.utils import create_files, remove_files
 from cli.exceptions import OperationFailedError
 
 from utility.log import Log
@@ -55,10 +54,16 @@ def run(ceph_cluster, **kw):
     smb_shares = config.get("smb_shares", ["share1", "share2"])
 
     # Get snapshot
-    snap = config.get("snap_name", "snap1")
+    snap = config.get("snapshot")
 
     # Get smb path
     path = config.get("path", "/")
+
+    # Get cifs mount point
+    cifs_mount_point = config.get("cifs_mount_point", "/mnt/smb")
+
+    # Get VSS operations to perform
+    vss_operation = config.get("vss_operation")
 
     # Get installer node
     installer = ceph_cluster.get_nodes(role="installer")[0]
@@ -68,12 +73,6 @@ def run(ceph_cluster, **kw):
 
     # Get client node
     client = ceph_cluster.get_nodes(role="client")[0]
-
-    # Get cifs mount point
-    cifs_mount_point = config.get("cifs_mount_point", "/mnt/smb")
-
-    # Get file count
-    file_count = int(config.get("file_count", "3"))
 
     try:
         # # deploy smb services
@@ -115,43 +114,33 @@ def run(ceph_cluster, **kw):
             domain_realm,
             cifs_mount_point,
         )
+        if vss_operation == "Access .snap directory":
+            # Check .snap Directory
+            cmd = f"cd {cifs_mount_point}/.snap"
+            out = client.exec_command(sudo=True,cmd=cmd)
+            if "No such file or directory" in out[0]:
+                raise OperationFailedError(".snap directory is not enabled")
+            else:
+                out = client.exec_command(sudo=True, cmd="cd {cifs_mount_point}.snap && pwd")
+                log.info(".snap directory is accessible, the path : {}".format(out))
 
-        # Check .snap Directory
-        cmd = f"cd /mnt/smb/.snap"
-        out = client.exec_command(sudo=True,cmd=cmd)
-        log.info(f"output0:{out}")
-        if "No such file or directory" in out:
-            raise OperationFailedError(".snap directory is not enabled")
-        else:
-            out = client.exec_command(sudo=True, cmd="cd /mnt/smb/.snap && pwd")
-            log.info(".snap directory is accessible, the path : {}".format(out))
+        if vss_operation == "Create and list Snapshots":
+            # Verify snapshot creation and list snapshots
+            cmd = '''cat << EOF >file1.txt
+            Hello!
+            EOF
+            '''
+            client.exec_command(sudo=True, cmd=cmd)
 
-        # Create file on share and create snapshot
-        # create_files(client, cifs_mount_point, file_count)
-        cmd = '''cat << EOF >file1.txt
-        Hello!
-        EOF
-        '''
-        client.exec_command(sudo=True, cmd=cmd)
-
-        cmd1 = f"cd /mnt/smb/ && ceph fs subvolume snapshot create {cephfs_vol} {smb_subvols[0]} {snap} {smb_subvol_group}"
-        log.info(f"cd /mnt/smb/ && ceph fs subvolume snapshot create {cephfs_vol} {smb_subvols[0]} {snap} {smb_subvol_group}")
-
-        out1 = client.exec_command(sudo=True, cmd=cmd1)
-        log.info(f"output1:{out1}")
-        cmd2 = f"cd /mnt/smb/ && ceph fs subvolume snapshot ls {cephfs_vol} {smb_subvols[0]} {smb_subvol_group}"
-        log.info(f"cd /mnt/smb/ && ceph fs subvolume snapshot ls {cephfs_vol} {smb_subvols[0]} {smb_subvol_group}")
-        out2 = client.exec_command(sudo=True, cmd=cmd2)
-        log.info(f"output2:{out2}")
-        if snap not in out2[0]:
-            raise OperationFailedError("Snapshot is not created")
-        else:
-            out = client.exec_command(sudo=True, cmd="cd /mnt/smb/.snap && ls -al")
-            log.info("Snapshot created {}, snap folder in .snap : {}".format(out2,out))
-
-
-
-
+            cmd1 = f"cd {cifs_mount_point} && ceph fs subvolume snapshot create {cephfs_vol} {smb_subvols[0]} {snap} {smb_subvol_group}"
+            client.exec_command(sudo=True, cmd=cmd1)
+            cmd2 = f"cd {cifs_mount_point} && ceph fs subvolume snapshot ls {cephfs_vol} {smb_subvols[0]} {smb_subvol_group}"
+            out2 = client.exec_command(sudo=True, cmd=cmd2)
+            if snap not in out2[0]:
+                raise OperationFailedError("Snapshot is not created")
+            else:
+                out = client.exec_command(sudo=True, cmd=f"cd {cifs_mount_point}/.snap && ls -al")
+                log.info("Snapshot created {}, snap folder in .snap : {}".format(out2,out))
 
 
     except Exception as e:
