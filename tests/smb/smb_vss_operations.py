@@ -126,13 +126,6 @@ def run(ceph_cluster, **kw):
 
         # Verify snapshot creation and list snapshots
         if vss_operation == "Create and list Snapshots":
-            # Create file on share
-            cmd = f'''cd {cifs_mount_point} && cat << EOF >test.txt
-            Hello!
-            '''
-            client.exec_command(sudo=True, cmd=cmd)
-            cmd = f"cd {cifs_mount_point} && cat test.txt"
-            out, _ = client.exec_command(sudo=True, cmd=cmd)
             # Create Snapshot
             cmd1 = f"cd {cifs_mount_point} && ceph fs subvolume snapshot create {cephfs_vol} {smb_subvols[0]} {snap} {smb_subvol_group}"
             client.exec_command(sudo=True, cmd=cmd1)
@@ -144,18 +137,40 @@ def run(ceph_cluster, **kw):
             else:
                 out3 = client.exec_command(sudo=True, cmd=f"cd {cifs_mount_point}/.snap && ls -al")
                 log.info("Snapshot created {}, snap folder in .snap : {}".format(out2,out3))
-            # Update the file on share
-            cmd3 = f'''cd {cifs_mount_point} && cat << EOF >test.txt
-            Hello! This is updated
-            '''
-            client.exec_command(sudo=True, cmd=cmd3)
-            # Access the snapshot in .snap directory
-            cmd4 = f"cd {cifs_mount_point}/.snap/*{snap}* && cat test.txt"
-            out4,_ = client.exec_command(sudo=True, cmd=cmd4)
-            # Check if file in snapshot has the old data
-            if out4 != out:
-                raise OperationFailedError(f"VSS feature not working. File content before editing {out}, "
-                                           f"File content of snapshot {out4}")
+
+
+            # Update file after creating snapshot and verify the content of the file in snapshot.
+            if vss_operation == "Verify content of the file in snapshot":
+                # Create file on share
+                cmd = f'''cd {cifs_mount_point} && cat << EOF >test.txt
+                Hello!
+                '''
+                client.exec_command(sudo=True, cmd=cmd)
+                cmd = f"cd {cifs_mount_point} && cat test.txt"
+                out, _ = client.exec_command(sudo=True, cmd=cmd)
+                # Create Snapshot
+                cmd1 = f"cd {cifs_mount_point} && ceph fs subvolume snapshot create {cephfs_vol} {smb_subvols[0]} {snap} {smb_subvol_group}"
+                client.exec_command(sudo=True, cmd=cmd1)
+                # List Snapshot
+                cmd2 = f"cd {cifs_mount_point} && ceph fs subvolume snapshot ls {cephfs_vol} {smb_subvols[0]} {smb_subvol_group}"
+                out2 = client.exec_command(sudo=True, cmd=cmd2)
+                if snap not in out2[0]:
+                    raise OperationFailedError("Snapshot is not created")
+                else:
+                    out3 = client.exec_command(sudo=True, cmd=f"cd {cifs_mount_point}/.snap && ls -al")
+                    log.info("Snapshot created {}, snap folder in .snap : {}".format(out2, out3))
+                # Update the file on share
+                cmd3 = f'''cd {cifs_mount_point} && cat << EOF >test.txt
+                Hello! This is updated
+                '''
+                client.exec_command(sudo=True, cmd=cmd3)
+                # Access the snapshot in .snap directory
+                cmd4 = f"cd {cifs_mount_point}/.snap/*{snap}* && cat test.txt"
+                out4, _ = client.exec_command(sudo=True, cmd=cmd4)
+                # Check if file in snapshot has the old data
+                if out4 != out:
+                    raise OperationFailedError(f"VSS feature not working. File content before editing {out}, "
+                                               f"File content of snapshot {out4}")
 
     except Exception as e:
         log.error(f"Failed to deploy samba with auth_mode {auth_mode} : {e}")
