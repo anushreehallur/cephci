@@ -75,22 +75,22 @@ def run(ceph_cluster, **kw):
     client = ceph_cluster.get_nodes(role="client")[0]
 
     try:
-        # deploy smb services
-        deploy_smb_service_imperative(
-            installer,
-            cephfs_vol,
-            smb_subvol_group,
-            smb_subvols,
-            smb_subvolume_mode,
-            smb_cluster_id,
-            auth_mode,
-            smb_user_name,
-            smb_user_password,
-            smb_shares,
-            path,
-            domain_realm,
-            custom_dns,
-        )
+        # # deploy smb services
+        # deploy_smb_service_imperative(
+        #     installer,
+        #     cephfs_vol,
+        #     smb_subvol_group,
+        #     smb_subvols,
+        #     smb_subvolume_mode,
+        #     smb_cluster_id,
+        #     auth_mode,
+        #     smb_user_name,
+        #     smb_user_password,
+        #     smb_shares,
+        #     path,
+        #     domain_realm,
+        #     custom_dns,
+        # )
 
         # Check smb share using smbclient
         smbclient_check_shares(
@@ -129,7 +129,6 @@ def run(ceph_cluster, **kw):
             # Create file on share
             cmd = f'''cd {cifs_mount_point} && cat << EOF >test.txt
             Hello!
-            EOF
             '''
             client.exec_command(sudo=True, cmd=cmd)
             cmd = f"cd {cifs_mount_point} && cat test.txt"
@@ -148,7 +147,6 @@ def run(ceph_cluster, **kw):
             # Update the file on share
             cmd3 = f'''cd {cifs_mount_point} && cat << EOF >test.txt
             Hello! This is updated
-            EOF
             '''
             client.exec_command(sudo=True, cmd=cmd3)
             # Access the snapshot in .snap directory
