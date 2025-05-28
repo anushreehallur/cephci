@@ -131,7 +131,9 @@ def run(ceph_cluster, **kw):
             Hello!
             EOF
             '''
-            out, _ =client.exec_command(sudo=True, cmd=cmd)
+            client.exec_command(sudo=True, cmd=cmd)
+            cmd = f"cd {cifs_mount_point} && cat file1.txt"
+            out, _ = client.exec_command(sudo=True, cmd=cmd)
             # Create Snapshot
             cmd1 = f"cd {cifs_mount_point} && ceph fs subvolume snapshot create {cephfs_vol} {smb_subvols[0]} {snap} {smb_subvol_group}"
             client.exec_command(sudo=True, cmd=cmd1)
