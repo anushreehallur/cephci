@@ -138,5 +138,6 @@ tests:
         smb_shares: [ share1 ]
         path: "/"
         cifs_mount_point: "/mnt/smb"
-        snapshot: snap1
+        snapshot: snapshot1
         vss_operation: "Create and list Snapshots"
+        smb_cleanup: True
