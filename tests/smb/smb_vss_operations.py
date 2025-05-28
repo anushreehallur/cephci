@@ -54,7 +54,7 @@ def run(ceph_cluster, **kw):
     smb_shares = config.get("smb_shares", ["share1", "share2"])
 
     # Get snapshot
-    snap = config.get("snapshot")
+    snap = config.get("snapshot", "snap1")
 
     # Get smb path
     path = config.get("path", "/")
@@ -75,22 +75,22 @@ def run(ceph_cluster, **kw):
     client = ceph_cluster.get_nodes(role="client")[0]
 
     try:
-        # # deploy smb services
-        # deploy_smb_service_imperative(
-        #     installer,
-        #     cephfs_vol,
-        #     smb_subvol_group,
-        #     smb_subvols,
-        #     smb_subvolume_mode,
-        #     smb_cluster_id,
-        #     auth_mode,
-        #     smb_user_name,
-        #     smb_user_password,
-        #     smb_shares,
-        #     path,
-        #     domain_realm,
-        #     custom_dns,
-        # )
+        # deploy smb services
+        deploy_smb_service_imperative(
+            installer,
+            cephfs_vol,
+            smb_subvol_group,
+            smb_subvols,
+            smb_subvolume_mode,
+            smb_cluster_id,
+            auth_mode,
+            smb_user_name,
+            smb_user_password,
+            smb_shares,
+            path,
+            domain_realm,
+            custom_dns,
+        )
 
         # Check smb share using smbclient
         smbclient_check_shares(
@@ -169,5 +169,5 @@ def run(ceph_cluster, **kw):
             sudo=True,
             cmd=f"rm -rf {cifs_mount_point}",
         )
-        # smb_cleanup(installer, smb_shares, smb_cluster_id)
+        smb_cleanup(installer, smb_shares, smb_cluster_id)
     return 0
