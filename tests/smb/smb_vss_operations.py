@@ -127,7 +127,7 @@ def run(ceph_cluster, **kw):
         # Verify snapshot creation and list snapshots
         if vss_operation == "Create and list Snapshots":
             # Create file on share
-            cmd = '''cat << EOF >file1.txt
+            cmd = f'''cd {cifs_mount_point} && cat << EOF >file1.txt
             Hello!
             EOF
             '''
@@ -146,7 +146,7 @@ def run(ceph_cluster, **kw):
                 out3 = client.exec_command(sudo=True, cmd=f"cd {cifs_mount_point}/.snap && ls -al")
                 log.info("Snapshot created {}, snap folder in .snap : {}".format(out2,out3))
             # Update the file on share
-            cmd3 = '''cat << EOF >file1.txt
+            cmd3 = f'''cd {cifs_mount_point} && cat << EOF >file1.txt
             Hello! This is updated
             EOF
             '''
