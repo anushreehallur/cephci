@@ -141,8 +141,8 @@ def run(ceph_cluster, **kw):
             if snap not in out2[0]:
                 raise OperationFailedError("Snapshot is not created")
             else:
-                out = client.exec_command(sudo=True, cmd=f"cd {cifs_mount_point}/.snap && ls -al")
-                log.info("Snapshot created {}, snap folder in .snap : {}".format(out2,out))
+                out3 = client.exec_command(sudo=True, cmd=f"cd {cifs_mount_point}/.snap && ls -al")
+                log.info("Snapshot created {}, snap folder in .snap : {}".format(out2,out3))
             # Update the file on share
             cmd3 = '''cat << EOF >file1.txt
             Hello! This is updated
@@ -154,7 +154,7 @@ def run(ceph_cluster, **kw):
             out4,_ = client.exec_command(sudo=True, cmd=cmd4)
             # Check if file in snapshot has the old data
             if out4 != out:
-                raise OperationFailedError(f"Snapshot of file is not saved {out4}, {out}")
+                raise OperationFailedError(f"Snapshot of file is not saved")
 
     except Exception as e:
         log.error(f"Failed to deploy samba with auth_mode {auth_mode} : {e}")
