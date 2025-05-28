@@ -127,12 +127,12 @@ def run(ceph_cluster, **kw):
         # Verify snapshot creation and list snapshots
         if vss_operation == "Create and list Snapshots":
             # Create file on share
-            cmd = f'''cd {cifs_mount_point} && cat << EOF >file1.txt
+            cmd = f'''cd {cifs_mount_point} && cat << EOF >test.txt
             Hello!
             EOF
             '''
             client.exec_command(sudo=True, cmd=cmd)
-            cmd = f"cd {cifs_mount_point} && cat file1.txt"
+            cmd = f"cd {cifs_mount_point} && cat test.txt"
             out, _ = client.exec_command(sudo=True, cmd=cmd)
             # Create Snapshot
             cmd1 = f"cd {cifs_mount_point} && ceph fs subvolume snapshot create {cephfs_vol} {smb_subvols[0]} {snap} {smb_subvol_group}"
@@ -146,13 +146,13 @@ def run(ceph_cluster, **kw):
                 out3 = client.exec_command(sudo=True, cmd=f"cd {cifs_mount_point}/.snap && ls -al")
                 log.info("Snapshot created {}, snap folder in .snap : {}".format(out2,out3))
             # Update the file on share
-            cmd3 = f'''cd {cifs_mount_point} && cat << EOF >file1.txt
+            cmd3 = f'''cd {cifs_mount_point} && cat << EOF >test.txt
             Hello! This is updated
             EOF
             '''
             client.exec_command(sudo=True, cmd=cmd3)
             # Access the snapshot in .snap directory
-            cmd4 = f"cd {cifs_mount_point}/.snap/*{snap}* && cat file1.txt"
+            cmd4 = f"cd {cifs_mount_point}/.snap/*{snap}* && cat test.txt"
             out4,_ = client.exec_command(sudo=True, cmd=cmd4)
             # Check if file in snapshot has the old data
             if out4 != out:
@@ -171,5 +171,5 @@ def run(ceph_cluster, **kw):
             sudo=True,
             cmd=f"rm -rf {cifs_mount_point}",
         )
-        smb_cleanup(installer, smb_shares, smb_cluster_id)
+        # smb_cleanup(installer, smb_shares, smb_cluster_id)
     return 0
