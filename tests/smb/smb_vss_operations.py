@@ -154,7 +154,7 @@ def run(ceph_cluster, **kw):
             out4,_ = client.exec_command(sudo=True, cmd=cmd4)
             # Check if file in snapshot has the old data
             if out4 != out:
-                raise OperationFailedError("Snapshot of file is not saved")
+                raise OperationFailedError(f"Snapshot of file is not saved {out4}, {out}")
 
     except Exception as e:
         log.error(f"Failed to deploy samba with auth_mode {auth_mode} : {e}")
