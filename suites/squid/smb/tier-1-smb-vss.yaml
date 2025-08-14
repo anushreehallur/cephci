@@ -168,3 +168,138 @@ tests:
           - list_snapshot
           - update_file
           - verify_snapshot_content
+
+  - test:
+      name: Create file on windows client take snapshot and restore file from the previous versions
+      desc: Create file on windows client take snapshot and restore file from the previous versions
+      module: smb_vss_operations.py
+#      polarion-id: CEPH-83593842
+      config:
+        file_type: yaml
+        file_mount: /tmp
+        windows_client: True
+        mount_point: "T:"
+        snapshot: window_snap1
+        operations:
+          - create_file
+          - create_snapshot
+          - update_file
+          - list_snapshot
+          - restore_file
+        windows_clients:
+          - ip: 10.70.47.29
+            hostname: DESKTOP-KC49RQO
+            user: smb-i
+            password: Samba@123
+        spec:
+          - resource_type: ceph.smb.cluster
+            cluster_id: smb1
+            auth_mode: user
+            user_group_settings:
+              - { source_type: resource, ref: ug1 }
+            placement:
+              label: smb
+          - resource_type: ceph.smb.usersgroups
+            users_groups_id: ug1
+            values:
+              users:
+                - { name: user1, password: passwd }
+              groups: [ ]
+          - resource_type: ceph.smb.share
+            cluster_id: smb1
+            share_id: share1
+            cephfs:
+              volume: cephfs
+              subvolumegroup: smb
+              subvolume: sv1
+              path: /
+
+  - test:
+      name: Create directory on windows client take snapshot and restore directory from the previous versions
+      desc: Create directory on windows client take snapshot and restore directory from the previous versions
+      module: smb_vss_operations.py
+      #      polarion-id: CEPH-83593842
+      config:
+        file_type: yaml
+        file_mount: /tmp
+        windows_client: True
+        mount_point: "T:"
+        snapshot: window_snap1
+        operations:
+          - create_file_in_directory
+          - create_snapshot
+          - update_file_in_directory
+          - list_snapshot
+          - restore_directory
+        windows_clients:
+          - ip: 10.70.47.29
+            hostname: DESKTOP-KC49RQO
+            user: smb-i
+            password: Samba@123
+        spec:
+          - resource_type: ceph.smb.cluster
+            cluster_id: smb1
+            auth_mode: user
+            user_group_settings:
+              - { source_type: resource, ref: ug1 }
+            placement:
+              label: smb
+          - resource_type: ceph.smb.usersgroups
+            users_groups_id: ug1
+            values:
+              users:
+                - { name: user1, password: passwd }
+              groups: [ ]
+          - resource_type: ceph.smb.share
+            cluster_id: smb1
+            share_id: share1
+            cephfs:
+              volume: cephfs
+              subvolumegroup: smb
+              subvolume: sv1
+              path: /
+
+  - test:
+      name: Create files on windows client take snapshot and restore share from the previous versions
+      desc: Create files on windows client take snapshot and restore share from the previous versions
+      module: smb_vss_operations.py
+      #      polarion-id: CEPH-83593842
+      config:
+        file_type: yaml
+        file_mount: /tmp
+        windows_client: True
+        mount_point: "T:"
+        snapshot: window_snap1
+        operations:
+          - create_file
+          - create_snapshot
+          - update_file
+          - list_snapshot
+          - restore_share
+        windows_clients:
+          - ip: 10.70.47.29
+            hostname: DESKTOP-KC49RQO
+            user: smb-i
+            password: Samba@123
+        spec:
+          - resource_type: ceph.smb.cluster
+            cluster_id: smb1
+            auth_mode: user
+            user_group_settings:
+              - { source_type: resource, ref: ug1 }
+            placement:
+              label: smb
+          - resource_type: ceph.smb.usersgroups
+            users_groups_id: ug1
+            values:
+              users:
+                - { name: user1, password: passwd }
+              groups: [ ]
+          - resource_type: ceph.smb.share
+            cluster_id: smb1
+            share_id: share1
+            cephfs:
+              volume: cephfs
+              subvolumegroup: smb
+              subvolume: sv1
+              path: /
