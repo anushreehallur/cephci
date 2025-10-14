@@ -1,6 +1,7 @@
 from threading import Thread
 from time import sleep
 
+from cephci.utility.utils import run_fio
 from smb_operations import (
     clients_cleanup,
     deploy_smb_service_declarative,
@@ -64,6 +65,18 @@ def client_operations(clients, operations, mount_point, file_count, windows_clie
                 thread_operations.append(
                     Thread(
                         target=remove_files,
+                        args=(
+                            clients[int(client[-2:]) - 1],
+                            mount_point,
+                            file_count,
+                            windows_client,
+                        ),
+                    )
+                )
+            elif operation == "run_fio":
+                thread_operations.append(
+                    Thread(
+                        target=run_fio(),
                         args=(
                             clients[int(client[-2:]) - 1],
                             mount_point,
@@ -210,26 +223,30 @@ def run(ceph_cluster, **kw):
         # Perfrom IO
         client_operations(clients, operations, mount_point, file_count, windows_client)
 
-        # Failover
-        smb_failover(smb_nodes, public_addrs, failover_type)
+        if failover_type == "multiple_failover":
 
-        # Workaround: Reconnect share from window client (BZ:2311739)
-        sleep(100)
-        reconnect_share(
-            clients,
-            mount_point,
-            smb_nodes[0],
-            smb_shares[0],
-            smb_user_name,
-            smb_user_password,
-            auth_mode,
-            domain_realm,
-            public_addrs,
-            windows_client,
-        )
+            for i in range(20):
 
-        # Perfrom IO
-        client_operations(clients, operations, mount_point, file_count, windows_client)
+                # Failover
+                smb_failover(smb_nodes, public_addrs, failover_type)
+
+                # Workaround: Reconnect share from window client (BZ:2311739)
+                sleep(100)
+                reconnect_share(
+                    clients,
+                    mount_point,
+                    smb_nodes[0],
+                    smb_shares[0],
+                    smb_user_name,
+                    smb_user_password,
+                    auth_mode,
+                    domain_realm,
+                    public_addrs,
+                    windows_client,
+                )
+
+                # Perfrom IO
+                client_operations(clients, operations, mount_point, file_count, windows_client)
 
     except Exception as e:
         log.error(f"Samba operation failed: {e}")
