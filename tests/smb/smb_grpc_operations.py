@@ -93,22 +93,28 @@ def run(ceph_cluster, **kw):
     # Generate self signed certificates crt, cacrt, key
     key, cert, ca, _ = generate_self_signed_certificate_for_smb_node(installer_node)
 
-    grpc_spec_tld_credential_dict = {
+    grpc_spec_tld_credential_dict = [
+        {
         "resource_type": "ceph.smb.tls.credential",
         "tls_credential_id": cert_tls_credential_id,
         "credential_type": "cert",
-        "value": "|\n" + cert.rstrip("\\n"),
+        "value": "|\n" + cert.rstrip("\\n")
+        },
+        {
         "resource_type": "ceph.smb.tls.credential",
         "tls_credential_id": key_tls_credential_id,
         "credential_type": "cert",
-        "value": "|\n" + key.rstrip("\\n"),
+        "value": "|\n" + key.rstrip("\\n")
+        },
+        {
         "resource_type": "ceph.smb.tls.credential",
         "tls_credential_id": cacert_tls_credential_id,
         "credential_type": "cacert",
-        "value": "|\n" + ca.rstrip("\\n"),
-    }
+        "value": "|\n" + ca.rstrip("\\n")
+        }
+    ]
     log.info("smb_spec: ",smb_spec)
-    smb_spec.update(grpc_spec_tld_credential_dict)
+    smb_spec.extend(grpc_spec_tld_credential_dict)
 
 
     try:
