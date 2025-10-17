@@ -1,7 +1,7 @@
 import os
 from ceph.ceph_admin import CephAdmin
-from cephci.cli.exceptions import ConfigError
-from cephci.utility.utils import generate_self_signed_certificate
+from cli.exceptions import ConfigError
+from utility.utils import generate_self_signed_certificate
 from smb_operations import (
     smb_cifs_mount,
     smb_cleanup,
