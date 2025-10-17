@@ -109,7 +109,7 @@ def run(ceph_cluster, **kw):
         {
         "resource_type": "ceph.smb.tls.credential",
         "tls_credential_id": cacert_tls_credential_id,
-        "credential_type": "cacert",
+        "credential_type": "ca-cert",
         "value": "|\n" + ca.rstrip("\\n")
         }
     ]
