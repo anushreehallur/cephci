@@ -1,5 +1,5 @@
 import os
-from cephci.ceph.ceph_admin import CephAdmin
+from ceph.ceph_admin import CephAdmin
 from cephci.cli.exceptions import ConfigError
 from cephci.utility.utils import generate_self_signed_certificate
 from smb_operations import (
