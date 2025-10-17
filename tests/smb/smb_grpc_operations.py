@@ -50,7 +50,7 @@ def run(ceph_cluster, **kw):
 
     # Get smb spec
     smb_spec = config.get("spec")
-    log.info("smb_spec_log: ", smb_spec)
+    log.info("smb_spec_log: {} ".format(smb_spec))
 
     # Get smb service value from spec file
     smb_shares = []
@@ -113,8 +113,8 @@ def run(ceph_cluster, **kw):
         "value": "|\n" + ca.rstrip("\\n")
         }
     ]
-    smb_spec = smb_spec.extend(grpc_spec_tld_credential_dict)
-    log.info("smb_spec: ",smb_spec)
+    smb_spec.extend(grpc_spec_tld_credential_dict)
+    log.info("smb_spec: {}".format(smb_spec))
 
 
     try:
