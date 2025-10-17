@@ -79,7 +79,7 @@ def run(ceph_cluster, **kw):
             cacert_tls_credential_id = spec["remote_control"]["ca_cert"]["ref"]
 
     # Get gRPC operations to perform
-    grpc_operation = smb_spec.get("grpc_operation")
+    grpc_operation = config.get("grpc_operation")
 
     # Get installer node
     installer_node = ceph_cluster.get_nodes(role="installer")[0]
