@@ -227,7 +227,7 @@ def generate_self_signed_certificate_for_smb_node(installer_node):
 def install_grpcurl(smb_node):
     """Install grpcurl package"""
     log.info("install grpcurl package")
-    wget_cmd = "curl -LO https://github.com/fullstorydev/grpcurl/releases/download/v1.8.9/grpcurl_1.8.9_linux_x86_64.tar.gzz"
+    wget_cmd = "curl -LO https://github.com/fullstorydev/grpcurl/releases/download/v1.8.9/grpcurl_1.8.9_linux_x86_64.tar.gz"
 
     tar_cmd = "tar -xvzf grpcurl_1.8.9_linux_x86_64.tar.gz"
     chmod_cmd = "chmod +x grpcurl"
