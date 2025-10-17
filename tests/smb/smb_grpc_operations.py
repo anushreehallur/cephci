@@ -56,27 +56,27 @@ def run(ceph_cluster, **kw):
     smb_shares = []
     smb_subvols = []
     for spec in smb_spec:
-        smb_cluster_id = spec["cluster_id"]
-        auth_mode = spec["auth_mode"]
-        if "domain_settings" in spec:
-            domain_realm = spec["domain_settings"]["realm"]
-        else:
-            domain_realm = None
-        if spec["resource_type"] == "ceph.smb.usersgroups":
+        if spec["resource_type"] == "ceph.smb.cluster":
+            smb_cluster_id = spec["cluster_id"]
+            auth_mode = spec["auth_mode"]
+            cert_tls_credential_id = spec["remote_control"]["cert"]["ref"]
+            key_tls_credential_id = spec["remote_control"]["key"]["ref"]
+            cacert_tls_credential_id = spec["remote_control"]["ca_cert"]["ref"]
+            if "domain_settings" in spec:
+                domain_realm = spec["domain_settings"]["realm"]
+            else:
+                domain_realm = None
+        elif spec["resource_type"] == "ceph.smb.usersgroups":
             smb_user_name = spec["values"]["users"][0]["name"]
             smb_user_password = spec["values"]["users"][0]["password"]
-        if spec["resource_type"] == "ceph.smb.join.auth":
+        elif spec["resource_type"] == "ceph.smb.join.auth":
             smb_user_name = spec["auth"]["username"]
             smb_user_password = spec["auth"]["password"]
-        if spec["resource_type"] == "ceph.smb.share":
+        elif spec["resource_type"] == "ceph.smb.share":
             cephfs_vol = spec["cephfs"]["volume"]
             smb_subvol_group = spec["cephfs"]["subvolumegroup"]
             smb_subvols.append(spec["cephfs"]["subvolume"])
             smb_shares.append(spec["share_id"])
-        if spec["resource_type"] == "ceph.smb.tls.credential":
-            cert_tls_credential_id = spec["remote_control"]["cert"]["ref"]
-            key_tls_credential_id = spec["remote_control"]["key"]["ref"]
-            cacert_tls_credential_id = spec["remote_control"]["ca_cert"]["ref"]
 
     # Get gRPC operations to perform
     grpc_operation = config.get("grpc_operation")
