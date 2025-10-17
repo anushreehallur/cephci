@@ -113,8 +113,8 @@ def run(ceph_cluster, **kw):
         "value": "|\n" + ca.rstrip("\\n")
         }
     ]
-    log.info("smb_spec: ",smb_spec)
     smb_spec = smb_spec.extend(grpc_spec_tld_credential_dict)
+    log.info("smb_spec: ",smb_spec)
 
 
     try:
