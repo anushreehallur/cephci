@@ -17,6 +17,7 @@ class NVMeInitiator(Initiator):
         self.discovery_port = 8009
         self.subsys_key = None
         self.host_key = None
+        # TODO: Need to cosume initiator nqn rather than getting from outside
         self.nqn = nqn
         self.auth_mode = ""
 
@@ -177,6 +178,141 @@ class NVMeInitiator(Initiator):
             for op in p:
                 results.append(op)
         return results
+
+    def register(self, base, register_args, nrkey, client_node):
+        """
+        Helper to perform the register_reservation and report_reservation on a client.
+        Validate the report for nrkey
+        Parameters:
+        base: Common/base arguments needed for reservation that includes device name and NSID
+        register_args: Additional args for registering from config file
+        nrkey: New Reservation Key generated from test module
+        client_node: initiator node on which commands are run
+        """
+        register_out = self.register_reservation(
+            **{**base, **register_args, "nrkey": nrkey}
+        )
+        namespace = base.get("device")
+        nsid = base.get("namespace-id")
+        LOG.debug(
+            f"Register ({namespace} nsid {nsid} on {client_node.hostname}): {register_out}"
+        )
+        report_out, report_err = self.report_reservation(**base)
+        LOG.debug(
+            f"Register Report for ({namespace} nsid {nsid} on {client_node.hostname}): {report_out}"
+        )
+        return register_out, report_out
+
+    def acquire(self, base, acquire_args, crkey, client_node):
+        """
+        Helper to perform the acquire_reservation and report_reservation on a client.
+        Validate the report for rtype and rcsts
+        Parameters:
+        base: Common/base arguments needed for reservation that includes device name and NSID
+        acquire_args: Additional args for acquiring reservation from config file
+        crkey: Current Reservation Key generated from test module
+        client_node: initiator node on which commands are run
+        """
+        acquire_out = self.acquire_reservation(
+            **{**base, **acquire_args, "crkey": crkey}
+        )
+        namespace = base.get("device")
+        nsid = base.get("namespace-id")
+        LOG.debug(
+            f"Acquire ({namespace} nsid {nsid} on {client_node.hostname}): {acquire_out}"
+        )
+
+        report_out, report_err = self.report_reservation(**base)
+        LOG.debug(
+            f"Acquire Report for ({namespace} nsid {nsid} on {client_node.hostname}): {report_out}"
+        )
+        data = json.loads(report_out)
+        regctlext = data.get("regctlext", [])
+        first_entry = regctlext[0] if regctlext else {}
+        rtype_value = data.get("rtype")
+        rcsts_value = first_entry.get("rcsts") if first_entry else None
+        if rtype_value == acquire_args.get("rtype") and rcsts_value == 1:
+            LOG.info(
+                f"Acquire Report validation successfull for ({namespace} nsid {nsid} on {client_node.hostname}: "
+                f"rcsts is {rcsts_value}, rtype is {rtype_value})"
+            )
+        else:
+            raise Exception(
+                f"Acquire Report validation **failed** for ({namespace} nsid {nsid} on {client_node.hostname}): "
+                f"rcsts is {rcsts_value}, rtype is {rtype_value})"
+            )
+        return acquire_out, report_out
+
+    def release(self, base, release_args, crkey, client_node):
+        """
+        Helper to perform the release_reservation and report_reservation on a client.
+        Validate the report for rcsts
+        Parameters:
+        base: Common/base arguments needed for reservation that includes device name and NSID
+        release_args: Additional args for releasing NS
+        crkey: Current Reservation Key generated from test module
+        client_node: initiator node on which commands are run
+        """
+        release_out = self.release_reservation(
+            **{**base, **release_args, "crkey": crkey}
+        )
+        namespace = base.get("device")
+        nsid = base.get("namespace-id")
+        LOG.debug(
+            f"Release ({namespace} nsid {nsid} on {client_node.hostname}): {release_out}"
+        )
+
+        report_out, report_err = self.report_reservation(**base)
+        LOG.debug(
+            f"Release Report for ({namespace} nsid {nsid} on {client_node.hostname}): {report_out}"
+        )
+        data = json.loads(report_out)
+        regctlext = data.get("regctlext", [])
+        first_entry = regctlext[0] if regctlext else {}
+        rcsts_value = first_entry.get("rcsts") if first_entry else None
+        if rcsts_value == 0:
+            LOG.info(
+                f"Release Report validation successfull for ({namespace} nsid {nsid} on {client_node.hostname}:"
+                f"rcsts value is {rcsts_value})"
+            )
+        else:
+            raise Exception(
+                f"Release Report validation **failed** for ({namespace} nsid {nsid} on {client_node.hostname}): "
+                f"rcsts_value is ({rcsts_value}) which says {client_node.hostname} is still reservation holder"
+            )
+        return release_out, report_out
+
+    def unregister(self, base, unregister_args, crkey, client_node):
+        """
+        Helper to perform the unregister_reservation and report_reservation on a client.
+        Validate the report for crkey
+        Parameters:
+        base: Common/base arguments needed for reservation that includes device name and NSID
+        unregister_args: Additional args for unregistering NS from config file
+        crkey: Current Reservation Key generated from test module
+        client_node: initiator node on which commands are run
+        """
+        unregister_out = self.register_reservation(
+            **{**base, **unregister_args, "crkey": crkey}
+        )
+        namespace = base.get("device")
+        nsid = base.get("namespace-id")
+        LOG.debug(
+            f"Unregister ({namespace} nsid {nsid} on {client_node.hostname}): {unregister_out}"
+        )
+
+        report_out, report_err = self.report_reservation(**base)
+        LOG.debug(
+            f"Unregister Report for ({namespace} nsid {nsid} on {client_node.hostname}): {report_out}"
+        )
+        data = json.loads(report_out)
+        regctl_count = data.get("regctl")
+        if regctl_count == 0:
+            LOG.info("No registered controllers left; regctl is 0")
+        else:
+            raise Exception(f"Other registrants remain; regctl={regctl_count}")
+
+        return unregister_out, report_out
 
 
 @retry((IOError, TimeoutError, CommandFailed), tries=7, delay=2)

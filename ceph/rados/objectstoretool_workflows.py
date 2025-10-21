@@ -83,6 +83,8 @@ class objectstoreToolWorkflows:
         osd_id: int,
         timeout: int = 300,
         mount: bool = False,
+        file_redirect: bool = False,
+        return_err: bool = False,
     ) -> str:
         """
         Runs ceph-objectstore-tool commands within OSD container
@@ -92,7 +94,7 @@ class objectstoreToolWorkflows:
             timeout: Maximum time allowed for execution.
             mount: boolean to control mounting of /tmp directory
             to cephadm container
-            start: flag to control OSD start after command execution
+            file_redirect: flag to control redirecting stdout/stderr to file
         Returns:
             output of respective ceph-objectstore-tool command in string format
         """
@@ -103,6 +105,8 @@ class objectstoreToolWorkflows:
         if mount:
             base_cmd = f"{base_cmd} --mount /tmp/"
         _cmd = f"{base_cmd} -- ceph-objectstore-tool --data-path /var/lib/ceph/osd/ceph-{osd_id} {cmd}"
+        if file_redirect:
+            _cmd = f"{_cmd} > /tmp/cot_stdout"
         try:
             if not self.nostop:
                 self.rados_obj.change_osd_state(action="stop", target=osd_id)
@@ -113,7 +117,7 @@ class objectstoreToolWorkflows:
         finally:
             if not self.nostart:
                 self.rados_obj.change_osd_state(action="start", target=osd_id)
-        return str(out)
+        return str(err) if return_err else str(out)
 
     def help(self, osd_id: int):
         """Module to run help command with ceph-objectstore-tool to display usage
@@ -126,13 +130,20 @@ class objectstoreToolWorkflows:
         _cmd = "--help"
         return self.run_cot_command(cmd=_cmd, osd_id=osd_id)
 
-    def list_objects(self, osd_id: int, pgid: str = None, obj_name: str = None):
+    def list_objects(
+        self,
+        osd_id: int,
+        pgid: str = None,
+        obj_name: str = None,
+        file_redirect: bool = False,
+    ):
         """Module to Identify all objs within an OSD
         or Identify all objs within a placement group
         Args:
             osd_id: OSD ID for which cot will be executed
             pgid: pg ID for which objs will be listed
             obj_name: name of a specific object to be listed
+            file_redirect: flag to control stdout redirection to file
         Returns:
             Returns the output of
             ceph-objectstore-tool --data-path $PATH_TO_OSD --pgid $PG_ID --op list
@@ -143,19 +154,24 @@ class objectstoreToolWorkflows:
             _cmd = f"{_cmd} --pgid {pgid}"
         if obj_name:
             _cmd = f"{_cmd} '{obj_name}'"
-        return self.run_cot_command(cmd=_cmd, osd_id=osd_id)
+        return self.run_cot_command(
+            cmd=_cmd, osd_id=osd_id, file_redirect=file_redirect
+        )
 
-    def list_pgs(self, osd_id: int):
+    def list_pgs(self, osd_id: int, file_redirect: bool = False):
         """Module to identify all placement groups within an OSD
         Args:
             osd_id: OSD ID for which cot will be executed
+            file_redirect: flag to control stdout redirection to file
         Returns:
             Returns the output of
             ceph-objectstore-tool --data-path $PATH_TO_OSD --pgid $PG_ID --op list-pgs
         """
         # Extracting the list of objects for an OSD
         _cmd = "--op list-pgs"
-        return self.run_cot_command(cmd=_cmd, osd_id=osd_id)
+        return self.run_cot_command(
+            cmd=_cmd, osd_id=osd_id, file_redirect=file_redirect
+        )
 
     def get_pg_from_object(self, osd_id: int, obj_id: str):
         """Module to get PG that an object belongs to
@@ -236,19 +252,22 @@ class objectstoreToolWorkflows:
         _cmd = f"--pgid {pgid} '{obj}' remove"
         return self.run_cot_command(cmd=_cmd, osd_id=osd_id)
 
-    def list_omap(self, osd_id: int, pgid: str, obj: str):
+    def list_omap(self, osd_id: int, pgid: str, obj: str, file_redirect: bool = False):
         """Module to list the contents of the object map (OMAP).
          The output is a list of keys.
         Args:
             osd_id: OSD ID for which cot will be executed
             pgid: Placement group ID
             obj: obj identifier
+            file_redirect: flag to control stdout redirection to file
         Returns:
             Returns the output of
             ceph-objectstore-tool --data-path $PATH_TO_OSD --pgid $PG_ID $OBJECT list-omap
         """
         _cmd = f"--pgid {pgid} '{obj}' list-omap"
-        return self.run_cot_command(cmd=_cmd, osd_id=osd_id)
+        return self.run_cot_command(
+            cmd=_cmd, osd_id=osd_id, file_redirect=file_redirect
+        )
 
     def get_omap_header(self, osd_id: int, pgid: str, obj: str, out_file):
         """Module to fetch object map header for a specific omap object
@@ -458,20 +477,18 @@ class objectstoreToolWorkflows:
             _cmd = f"{_cmd} '{obj_name}'"
         return self.run_cot_command(cmd=_cmd, osd_id=osd_id)
 
-    def export(self, osd_id: int, pgid: str = None, obj_name: str = None):
-        """Module to export content of input OSD
+    def export(self, osd_id: int, pgid: str, out_file: str):
+        """Module to export content of input PG in an OSD
         Args:
             osd_id: OSD ID for which cot will be executed
-            pgid: pg ID for which objs will be listed
-            obj_name: name of a specific object to be listed
+            pgid: pg ID for which data will be exported
+            out_file: file to save exported data
         Returns:
             Returns the output of
-            ceph-objectstore-tool --data-path $PATH_TO_OSD --pgid $PG_ID --op export
+            ceph-objectstore-tool --data-path $PATH_TO_OSD --pgid $PG_ID --op export --file outfile
         """
-        # Extracting the content of OSD
-        _cmd = "--op export"
-        if pgid:
-            _cmd = f"{_cmd} --pgid {pgid}"
-        if obj_name:
-            _cmd = f"{_cmd} '{obj_name}'"
-        return self.run_cot_command(cmd=_cmd, osd_id=osd_id)
+        # Extracting the content of a PG in an OSD
+        _cmd = f"--op export --pgid {pgid} --file {out_file}"
+        return self.run_cot_command(
+            cmd=_cmd, osd_id=osd_id, mount=True, return_err=True
+        )

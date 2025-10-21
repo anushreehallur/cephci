@@ -635,7 +635,7 @@ def test_ceph_83575455(ceph_cluster, rbd, pool, config):
     )
     client = get_node_by_id(ceph_cluster, config["initiator_node"])
     initiator = NVMeInitiator(client)
-    initiator_nqn = initiator.nqn()
+    initiator_nqn = initiator.initiator_nqn()
 
     subsystem = dict()
     listener_port = find_free_port(gw_node)
@@ -706,9 +706,7 @@ def test_ceph_83575455(ceph_cluster, rbd, pool, config):
         # Create a file to check IO failure on mount point
         LOG.info("Remove client host access to the namespaces")
         try:
-            host_args = {
-                "args": {"subsystem": subsystem["nqn"], "host-nqn": initiator_nqn}
-            }
+            host_args = {"args": {"subsystem": subsystem["nqn"], "host": initiator_nqn}}
             nvmegwcli.host.delete(**host_args)
         except Exception as host_del_err:
             if (
@@ -720,7 +718,8 @@ def test_ceph_83575455(ceph_cluster, rbd, pool, config):
                 LOG.info("Deletion of host is successful")
 
         sleep(20)
-        targets = initiator.list_devices()
+        LOG.info("Check targets are not found on client")
+        targets = initiator.list_spdk_drives()
         if targets:
             raise Exception(f"NVMe Targets found on {client.hostname}!!!")
         LOG.info(f"NVMe targets not found on {client.hostname} as expected..")

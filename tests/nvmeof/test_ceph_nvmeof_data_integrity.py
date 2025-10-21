@@ -50,14 +50,14 @@ def configure_subsystems(ceph_cluster, rbd, pool, nvmegwcli, config):
     # All host to subsystem
     if config.get("allow_host"):
         nvmegwcli.host.add(
-            **{"args": {**sub_args, **{"host-nqn": repr(config["allow_host"])}}}
+            **{"args": {**sub_args, **{"host": repr(config["allow_host"])}}}
         )
 
     if config.get("hosts"):
         for host in config["hosts"]:
             initiator_node = get_node_by_id(ceph_cluster, host)
             initiator = NVMeInitiator(initiator_node)
-            host_nqn = initiator.nqn()
+            host_nqn = initiator.initiator_nqn()
             nvmegwcli.host.add(**{"args": {**sub_args, **{"host": host_nqn}}})
 
     if config.get("bdevs"):
@@ -252,20 +252,10 @@ def run(ceph_cluster: Ceph, **kwargs) -> int:
                     )
 
         if config.get("initiators"):
-            targets, rhel_version = initiators(
+            paths, rhel_version = initiators(
                 ceph_cluster, nvmegwcli, config["initiators"]
             )
-            LOG.info(f"Targets discovered: {targets}")
-
-            if rhel_version == "9.5":
-                paths = [target["DevicePath"] for target in targets]
-            elif rhel_version == "9.6":
-                paths = [
-                    f"/dev/{ns['NameSpace']}"
-                    for device in targets
-                    for subsys in device.get("Subsystems", [])
-                    for ns in subsys.get("Namespaces", [])
-                ]
+            LOG.info(f"Targets discovered: {paths}")
 
             if not paths:
                 raise RuntimeError("No paths")
@@ -347,20 +337,10 @@ def run(ceph_cluster: Ceph, **kwargs) -> int:
                 time.sleep(10)
                 # Connect to Initiator
                 if config.get("initiators"):
-                    targets, rhel_version = initiators(
+                    paths, rhel_version = initiators(
                         ceph_cluster, nvmegwcli, config["initiators"]
                     )
-                    LOG.info(f"Targets discovered: {targets}")
-
-                    if rhel_version == "9.5":
-                        paths = [target["DevicePath"] for target in targets]
-                    elif rhel_version == "9.6":
-                        paths = [
-                            f"/dev/{ns['NameSpace']}"
-                            for device in targets
-                            for subsys in device.get("Subsystems", [])
-                            for ns in subsys.get("Namespaces", [])
-                        ]
+                    LOG.info(f"Targets discovered: {paths}")
 
                 path = paths[0]
                 # mount the NVMe target
