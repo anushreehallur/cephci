@@ -234,20 +234,20 @@ def install_grpcurl(smb_node):
     rename_cmd = "sudo mv grpcurl /usr/local/bin/"
     version_cmd = "grpcurl --version"
     out, _ = smb_node.exec_command(
-        cmd=wget_cmd,
         sudo=True,
+        cmd=wget_cmd
     )
     log.info(out)
     smb_node.exec_command(
+        sudo=True,
         cmd=f"{tar_cmd} && {chmod_cmd} && {rename_cmd}",
-        sudo=True
     )
     out = smb_node.exec_command(
+        sudo=True,
         cmd=version_cmd,
-        sudo=True
     )
     log.info(out)
-    if out[1]:
+    if "grpcurl" in out[0]:
         raise Exception(" grpcurl not installed")
 
 def clone_the_samba_in_kubernetes_repo(config, node):
