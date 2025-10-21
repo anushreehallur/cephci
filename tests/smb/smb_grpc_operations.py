@@ -91,7 +91,8 @@ def run(ceph_cluster, **kw):
     client = ceph_cluster.get_nodes(role="client")[0]
 
     # Generate self signed certificates crt, cacrt, key
-    key, cert, ca, _ = generate_self_signed_certificate_for_smb_node(installer_node)
+    key, cert, ca, abs_path = generate_self_signed_certificate_for_smb_node(installer_node)
+    log.info(abs_path)
 
     grpc_spec_tld_credential_dict = [
         {
@@ -210,7 +211,7 @@ def generate_self_signed_certificate_for_smb_node(installer_node):
         "common_name": installer_node.hostname,
         "ip_address": installer_node.ip_address,
     }
-    key, cert, ca = generate_self_signed_certificate(subject=subject)
+    key, cert, ca= generate_self_signed_certificate(subject=subject)
     with open(f"{subject['common_name']}.key", "w") as f:
         f.write(key)
     with open(f"{subject['common_name']}.crt", "w") as f:
@@ -233,7 +234,7 @@ def install_grpcurl(smb_node):
     chmod_cmd = "chmod +x grpcurl"
     rename_cmd = "sudo mv grpcurl /usr/local/bin/"
     version_cmd = "grpcurl --version"
-    out, _ = smb_node.exec_command(
+    out = smb_node.exec_command(
         sudo=True,
         cmd=wget_cmd
     )
@@ -247,8 +248,8 @@ def install_grpcurl(smb_node):
         cmd=version_cmd,
     )
     log.info(out)
-    if "grpcurl" in out[0]:
-        raise Exception(" grpcurl not installed")
+    if "grpcurl" not in out[1]:
+        raise Exception("grpcurl not installed")
 
 def clone_the_samba_in_kubernetes_repo(config, node):
     """clone the repo on to the node.
