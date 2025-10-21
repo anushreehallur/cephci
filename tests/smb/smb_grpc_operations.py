@@ -242,7 +242,7 @@ def install_grpcurl(smb_node):
         cmd=f"{tar_cmd} && {chmod_cmd} && {rename_cmd}",
         sudo=True,
     )
-    out, _ = smb_node.exec_command(
+    out = smb_node.exec_command(
         cmd=version_cmd,
         sudo=True,
         long_running=True
