@@ -91,8 +91,7 @@ def run(ceph_cluster, **kw):
     client = ceph_cluster.get_nodes(role="client")[0]
 
     # Generate self signed certificates crt, cacrt, key
-    key, cert, ca, abs_path = generate_self_signed_certificate_for_smb_node(installer_node)
-    log.info(abs_path)
+    key, cert, ca = generate_self_signed_certificate_for_smb_node(installer_node)
 
     grpc_spec_tld_credential_dict = [
         {
@@ -212,18 +211,13 @@ def generate_self_signed_certificate_for_smb_node(installer_node):
         "ip_address": installer_node.ip_address,
     }
     key, cert, ca= generate_self_signed_certificate(subject=subject)
-    with open(f"{subject['common_name']}.key", "w") as f:
+    with open("grpc_key.key", "w") as f:
         f.write(key)
-    with open(f"{subject['common_name']}.crt", "w") as f:
+    with open("grpc_cert.crt", "w") as f:
         f.write(cert)
-    with open(f"{subject['common_name']}.ca", "w") as f:
+    with open("grpc_cacert.ca", "w") as f:
         f.write(ca)
-    abs_path = (
-        os.path.abspath(f"{subject['common_name']}.key"),
-        os.path.abspath(f"{subject['common_name']}.crt"),
-        os.path.abspath(f"{subject['common_name']}.ca"))
-
-    return key, cert, ca, abs_path
+    return key, cert, ca
 
 def install_grpcurl(smb_node):
     """Install grpcurl package"""
