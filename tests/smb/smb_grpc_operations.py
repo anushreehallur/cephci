@@ -211,12 +211,22 @@ def generate_self_signed_certificate_for_smb_node(installer_node):
         "ip_address": installer_node.ip_address,
     }
     key, cert, ca= generate_self_signed_certificate(subject=subject)
-    with open("/root/grpc_key.key", "w") as f:
-        f.write(key)
-    with open("/root/grpc_cert.crt", "w") as f:
-        f.write(cert)
-    with open("/root/grpc_cacert.ca", "w") as f:
-        f.write(ca)
+
+    key_file = installer_node.remote_file(
+        sudo=True, file_name="grpc_key.key", file_mode="w+"
+    )
+    key_file.write(key)
+    key_file.flush()
+    cert_file = installer_node.remote_file(
+        sudo=True, file_name="grpc_cert.crt", file_mode="w+"
+    )
+    cert_file.write(cert)
+    cert_file.flush()
+    ca_file = installer_node.remote_file(
+        sudo=True, file_name="grpc_ca.ca", file_mode="w+"
+    )
+    ca_file.write(ca)
+    ca_file.flush()
     return key, cert, ca
 
 def install_grpcurl(smb_node):
