@@ -245,6 +245,7 @@ def install_grpcurl(smb_node):
     out, _ = smb_node.exec_command(
         cmd=version_cmd,
         sudo=True,
+        long_running=True
     )
     log.info(out)
     if "grpcurl" not in out:
