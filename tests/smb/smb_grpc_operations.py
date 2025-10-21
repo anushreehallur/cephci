@@ -211,11 +211,11 @@ def generate_self_signed_certificate_for_smb_node(installer_node):
         "ip_address": installer_node.ip_address,
     }
     key, cert, ca= generate_self_signed_certificate(subject=subject)
-    with open("grpc_key.key", "w") as f:
+    with open("/root/grpc_key.key", "w") as f:
         f.write(key)
-    with open("grpc_cert.crt", "w") as f:
+    with open("/root/grpc_cert.crt", "w") as f:
         f.write(cert)
-    with open("grpc_cacert.ca", "w") as f:
+    with open("/root/grpc_cacert.ca", "w") as f:
         f.write(ca)
     return key, cert, ca
 
