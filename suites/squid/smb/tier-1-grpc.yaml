@@ -72,19 +72,19 @@ tests:
         install_packages:
           - ceph-common
           - samba-client
+          - cifs-utils
         copy_admin_keyring: true
       destroy-cluster: false
       abort-on-fail: true
 
   - test:
-      name: Check remotectl service in gRPC
-      desc: Check remotectl service in gRPC
-      module: smb_grpc_operations
+      name: Test create SMB cluster with mTLS enabled to set up the remote control server.
+      desc: Test create SMB cluster with mTLS enabled to set up the remote control server.
+      module: smb_grpc_setup.py
 #      polarion-id: CEPH-83593843
       config:
         file_type: yaml
         file_mount: /tmp
-        grpc_operation: check_remotectl
         spec:
           - resource_type: ceph.smb.cluster
             cluster_id: smb1
@@ -119,16 +119,79 @@ tests:
               subvolumegroup: smb
               subvolume: sv2
               path: /
-#          - resource_type: ceph.smb.tls.credential
-#            tls_credential_id: cert1
-#            credential_type: cert
-#            value: |
-#          - resource_type: ceph.smb.tls.credential
-#            tls_credential_id: key1
-#            credential_type: cert
-#            value: |
-#          - resource_type: ceph.smb.tls.credential
-#            tls_credential_id: cacert1
-#            credential_type: ca-cert
-#            value: |
+
+  - test:
+      name: Test grpcurl command to describe all the gRPC Service calls.
+      desc: Test grpcurl command to describe all the gRPC Service calls.
+      module: smb_grpc_operations1.py
+      #      polarion-id: CEPH-83593843
+      config:
+        smb_cluster_id: smb1
+        grpc_operation: describe_all_service_calls
+
+  - test:
+      name: Test grpcurl command to show samba and container Info.
+      desc: Test grpcurl command to show samba and container Info.
+      module: smb_grpc_operations1.py
+      #      polarion-id: CEPH-83593843
+      config:
+        grpc_operation: service_info
+
+  - test:
+      name: Test grpcurl command to list connected clients Status, when no client is connected.
+      desc: Test grpcurl command to list connected clients Status, when no client is connected.
+      module: smb_grpc_operations1.py
+      #      polarion-id: CEPH-83593843
+      config:
+        grpc_operation: status_when_no_clients
+
+  - test:
+      name: Test grpcurl command to list connected clients Status, when linux client is connected.
+      desc: Test grpcurl command to list connected clients Status, when linux client is connected.
+      module: smb_grpc_operations1.py
+      #      polarion-id: CEPH-83593843
+      config:
+        cifs_mount_point: /mnt/smb
+        grpc_operation: status_with_linux_client
+
+#  - test:
+#      name: Test grpcurl command to list connected clients Status, when windows client is connected.
+#      desc: Test grpcurl command to list connected clients Status, when windows client is connected.
+#      module: smb_grpc_operations1.py
+#      #      polarion-id: CEPH-83593843
+#      config:
+#        grpc_operation: status_with_windows_client
+
+#  - test:
+#      name: Test grpcurl command to list connected clients Status, when both linux and windows clients are connected.
+#      desc: Test grpcurl command to list connected clients Status, when both linux and windows client are connected.
+#      module: smb_grpc_operations1.py
+#      #      polarion-id: CEPH-83593843
+#      config:
+#        grpc_operation: describe_service_calls
+
+  - test:
+      name: Test grpcurl command to kill specific linux client connection.
+      desc: Test grpcurl command to kill specific linux client connection.
+      module: smb_grpc_operations1.py
+      #      polarion-id: CEPH-83593843
+      config:
+        grpc_operation: kill_linux_client
+
+#  - test:
+#      name: Test grpcurl command to close share when linux and windows clients are connected.
+#      desc: Test grpcurl command to close share when linux and windows clients are connected.
+#      module: smb_grpc_operations1.py
+#      #      polarion-id: CEPH-83593843
+#      config:
+#        grpc_operation: describe_service_calls
+#
+#  - test:
+#      name: Create two shares connected to the same client and test grpcurl command to close one of the share.
+#      desc: Create two shares connected to the same client and test grpcurl command to close one of the share.
+#      module: smb_grpc_operations1.py
+#      #      polarion-id: CEPH-83593843
+#      config:
+#        grpc_operation: describe_service_calls
+
 
