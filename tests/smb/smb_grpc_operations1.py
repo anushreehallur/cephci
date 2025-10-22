@@ -132,8 +132,8 @@ def run(ceph_cluster, **kw):
             )
             cmd = (
                 f"cd sambacc && grpcurl -cacert /root/grpc_ca.ca -cert /root/grpc_cert.crt  -key /root/grpc_key.key "
-                f"-import-path sambacc/grpc/protobufs/ "
-                f"-proto control.proto -d '/{"ip_address": {client.ip_address}/}' {installer_node.ip_address}:54445 "
+                f"-import-path sambacc/grpc/protobufs/ -proto control.proto "
+                f"-d '{{{{\"ip_address\": \"{client.ip_address}\"}}}}' {installer_node.ip_address}:54445 "
                 f"SambaControl/KillClientConnection"
             )
             out = client.exec_command(sudo=True, cmd=cmd)

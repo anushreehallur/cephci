@@ -250,4 +250,4 @@ def run(ceph_cluster, **kw):
     #         cmd=f"rm -rf {cifs_mount_point}",
     #     )
         # smb_cleanup(installer_node, smb_shares, smb_cluster_id)
-    return smb_cluster_id
+    return 0
