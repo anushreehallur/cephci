@@ -448,7 +448,8 @@ def get_smb_shares(installer, smb_cluster_id):
         List of shares
     """
     shares = CephAdm(installer).ceph.smb.share.ls(smb_cluster_id)
-    return shares
+    list_shares = json.loads(shares)
+    return list_shares
 
 
 def verify_smb_service(node, service_name):
