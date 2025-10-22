@@ -48,6 +48,7 @@ def run(ceph_cluster, **kw):
 
     # Get smb shares
     smb_shares = get_smb_shares(installer_node, smb_cluster_id)
+    log.info("smb_shares: {}".format(smb_shares))
 
     # Get auth_mode
     auth_mode = config.get("auth_mode", "user")
