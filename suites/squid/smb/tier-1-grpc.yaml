@@ -81,7 +81,7 @@ tests:
       name: Test create SMB cluster with mTLS enabled to set up the remote control server.
       desc: Test create SMB cluster with mTLS enabled to set up the remote control server.
       module: smb_grpc_setup.py
-#      polarion-id: CEPH-83593843
+      polarion-id: CEPH-83627778
       config:
         file_type: yaml
         file_mount: /tmp
@@ -124,7 +124,7 @@ tests:
       name: Test grpcurl command to describe all the gRPC Service calls.
       desc: Test grpcurl command to describe all the gRPC Service calls.
       module: smb_grpc_operations1.py
-      #      polarion-id: CEPH-83593843
+      polarion-id: CEPH-83627779
       config:
         smb_cluster_id: smb1
         grpc_operation: describe_all_service_calls
@@ -133,7 +133,7 @@ tests:
       name: Test grpcurl command to show samba and container Info.
       desc: Test grpcurl command to show samba and container Info.
       module: smb_grpc_operations1.py
-      #      polarion-id: CEPH-83593843
+      polarion-id: CCEPH-83627781
       config:
         smb_cluster_id: smb1
         grpc_operation: service_info
@@ -142,26 +142,26 @@ tests:
       name: Test grpcurl command to list connected clients Status, when no client is connected.
       desc: Test grpcurl command to list connected clients Status, when no client is connected.
       module: smb_grpc_operations1.py
-      #      polarion-id: CEPH-83593843
+      polarion-id: CEPH-83631059
       config:
         smb_cluster_id: smb1
         grpc_operation: status_when_no_clients
 
   - test:
-      name: Test grpcurl command to list connected clients Status, when linux client is connected.
+      name: Test grpcurl command to list connected clients Status, when client is connected.
       desc: Test grpcurl command to list connected clients Status, when linux client is connected.
       module: smb_grpc_operations1.py
-      #      polarion-id: CEPH-83593843
+      olarion-id: CCEPH-83631060
       config:
         smb_cluster_id: smb1
         cifs_mount_point: /mnt/smb
         grpc_operation: status_with_linux_client
 
   - test:
-      name: Test grpcurl command to kill specific linux client connection.
+      name: Test grpcurl command to kill specific client connection.
       desc: Test grpcurl command to kill specific linux client connection.
       module: smb_grpc_operations1.py
-      #      polarion-id: CEPH-83593843
+      polarion-id: CEPH-83627783
       config:
         smb_cluster_id: smb1
         grpc_operation: kill_linux_client
