@@ -91,7 +91,7 @@ def check_remotectl_service(smb_node):
     else:
         raise OperationFailedError(f"gRPC remotectl service has not been loaded {out}")
 
-    if "remotectl" in out & "active" in out & "running" in out:
+    if "remotectl" in out and "active" in out and "running" in out:
         log.info(f"gRPC remotectl service is running activetly: {out}, grpc smd cluster is created successfully")
     else:
         raise OperationFailedError(f"gRPC remotectl service has been loaded but failed {out}")

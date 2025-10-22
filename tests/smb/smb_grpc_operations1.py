@@ -4,8 +4,7 @@ from cli.exceptions import ConfigError
 from utility.utils import generate_self_signed_certificate
 from smb_operations import (
     smb_cifs_mount,
-    smb_cleanup,
-    smbclient_check_shares, deploy_smb_service_declarative, check_smb_cluster, verify_smb_service, get_smb_share,
+    check_smb_cluster, verify_smb_service,
     get_smb_shares,
 )
 
