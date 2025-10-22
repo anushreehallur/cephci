@@ -1,14 +1,9 @@
-import os
-from ceph.ceph_admin import CephAdmin
-from cli.exceptions import ConfigError
-from utility.utils import generate_self_signed_certificate
 from smb_operations import (
     smb_cifs_mount,
     check_smb_cluster, verify_smb_service,
     get_smb_shares,
 )
 
-from cli.exceptions import OperationFailedError
 from utility.log import Log
 
 log = Log(__name__)
@@ -21,9 +16,6 @@ def run(ceph_cluster, **kw):
     """
     # Get config
     config = kw.get("config")
-
-    # Get cephadm obj
-    cephadm = CephAdmin(cluster=ceph_cluster, **config)
 
     # Get installer node
     installer_node = ceph_cluster.get_nodes(role="installer")[0]

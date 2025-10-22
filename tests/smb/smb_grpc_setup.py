@@ -1,5 +1,3 @@
-import os
-from ceph.ceph_admin import CephAdmin
 from cli.exceptions import ConfigError
 from utility.utils import generate_self_signed_certificate
 from smb_operations import (
@@ -121,9 +119,6 @@ def run(ceph_cluster, **kw):
     # Get smb subvolume mode
     smb_subvolume_mode = config.get("smb_subvolume_mode", "0777")
 
-    # Get cifs mount point
-    cifs_mount_point = config.get("cifs_mount_point", "/mnt/smb")
-
     # Get smb spec
     smb_spec = config.get("spec")
     log.info("smb_spec_log: {} ".format(smb_spec))
@@ -153,9 +148,6 @@ def run(ceph_cluster, **kw):
             smb_subvol_group = spec["cephfs"]["subvolumegroup"]
             smb_subvols.append(spec["cephfs"]["subvolume"])
             smb_shares.append(spec["share_id"])
-
-    # # Get gRPC operations to perform
-    # grpc_operation = config.get("grpc_operation")
 
     # Get installer node
     installer_node = ceph_cluster.get_nodes(role="installer")[0]
@@ -223,31 +215,9 @@ def run(ceph_cluster, **kw):
         # Clone samba in kubernetes repo
         clone_the_samba_in_kubernetes_repo(config, installer_node)
 
-        # # Mount smb share with cifs
-        # smb_cifs_mount(
-        #     smb_nodes[0],
-        #     client,
-        #     smb_shares[0],
-        #     smb_user_name,
-        #     smb_user_password,
-        #     auth_mode,
-        #     domain_realm,
-        #     cifs_mount_point,
-        # )
-        # Check if grpc remotectl service is running
         check_remotectl_service(installer_node)
 
     except Exception as e:
         log.error(f"Failed to deploy samba with auth_mode {auth_mode} : {e}")
         return 1
-    # finally:
-    #     client.exec_command(
-    #         sudo=True,
-    #         cmd=f"umount {cifs_mount_point}",
-    #     )
-    #     client.exec_command(
-    #         sudo=True,
-    #         cmd=f"rm -rf {cifs_mount_point}",
-    #     )
-        # smb_cleanup(installer_node, smb_shares, smb_cluster_id)
     return 0
