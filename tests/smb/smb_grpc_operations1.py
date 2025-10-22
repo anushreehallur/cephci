@@ -69,7 +69,7 @@ def run(ceph_cluster, **kw):
             cmd = (
                 f"cd sambacc && grpcurl -import-path sambacc/grpc/protobufs/ -proto control.proto  describe SambaControl"
             )
-            out = client.exec_command(sudo=True, cmd=cmd)
+            out = installer_node.exec_command(sudo=True, cmd=cmd)
             log.info("Describe Samba Control : {}".format(out))
 
         elif grpc_operation == "service_info":
@@ -78,7 +78,7 @@ def run(ceph_cluster, **kw):
                 f"-import-path sambacc/grpc/protobufs/ "
                 f"-proto control.proto  {installer_node.ip_address}:54445  SambaControl/Info"
             )
-            out = client.exec_command(sudo=True, cmd=cmd)
+            out = installer_node.exec_command(sudo=True, cmd=cmd)
             log.info("Print Samba and container Info Samba Control : {}".format(out))
 
         elif grpc_operation == "status_when_no_clients":
@@ -87,7 +87,7 @@ def run(ceph_cluster, **kw):
                 f"-import-path sambacc/grpc/protobufs/ "
                 f"-proto control.proto  {installer_node.ip_address}:54445  SambaControl/Status"
             )
-            out = client.exec_command(sudo=True, cmd=cmd)
+            out = installer_node.exec_command(sudo=True, cmd=cmd)
             log.info("grpcurl status : {}".format(out))
 
         elif grpc_operation == "status_with_linux_client":
@@ -107,7 +107,7 @@ def run(ceph_cluster, **kw):
                 f"-import-path sambacc/grpc/protobufs/ "
                 f"-proto control.proto  {installer_node.ip_address}:54445  SambaControl/Status"
             )
-            out = client.exec_command(sudo=True, cmd=cmd)
+            out = installer_node.exec_command(sudo=True, cmd=cmd)
             log.info("grpcurl status : {}".format(out))
             client.exec_command(
                     sudo=True,
@@ -135,7 +135,7 @@ def run(ceph_cluster, **kw):
                 f"-d '{{{{\"ip_address\": \"{client.ip_address}\"}}}}' {installer_node.ip_address}:54445 "
                 f"SambaControl/KillClientConnection"
             )
-            out = client.exec_command(sudo=True, cmd=cmd)
+            out = installer_node.exec_command(sudo=True, cmd=cmd)
             log.info("grpcurl status : {}".format(out))
             client.exec_command(
                 sudo=True,
