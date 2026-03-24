@@ -12,28 +12,33 @@ def generate_self_signed_certificate_for_smb_node(installer_node):
     Args:
         installer_node (obj): samba server node installer node obj
     """
-    subject = {
+    server_subject = {
         "common_name": installer_node.hostname,
         "ip_address": installer_node.ip_address,
     }
-    key, cert, ca = generate_self_signed_certificate(subject=subject)
+    client_subject = {
+        "common_name": "grpc_client",
+        "ip_address": installer_node.ip_address,
+    }
+    server_key, server_cert, ca = generate_self_signed_certificate(subject=server_subject)
+    client_key, client_cert, _ = generate_self_signed_certificate(subject=server_subject)
 
     key_file = installer_node.remote_file(
-        sudo=True, file_name="grpc_key.key", file_mode="w+"
+        sudo=True, file_name="grpc_server_key.key", file_mode="w+"
     )
-    key_file.write(key)
+    key_file.write(server_key)
     key_file.flush()
     cert_file = installer_node.remote_file(
-        sudo=True, file_name="grpc_cert.crt", file_mode="w+"
+        sudo=True, file_name="grpc_server_cert.crt", file_mode="w+"
     )
-    cert_file.write(cert)
+    cert_file.write(server_cert)
     cert_file.flush()
     ca_file = installer_node.remote_file(
         sudo=True, file_name="grpc_ca.ca", file_mode="w+"
     )
     ca_file.write(ca)
     ca_file.flush()
-    return key, cert, ca
+    return server_key, server_cert, ca, client_cert, client_key
 
 
 def install_grpcurl(smb_node):
