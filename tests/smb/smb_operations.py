@@ -997,3 +997,29 @@ def config_smb_images(installer, samba_image, samba_metrics_image):
         installer.exec_command(sudo=True, cmd=cmd)
     except Exception as e:
         raise CephadmOpsExecutionError(f"Fail to configure smb images, Error {e}")
+
+def add_port_to_firewalld(node, port):
+    """Add port to the firewalld"""
+    out = node.exec_command(
+        sudo=True,
+        cmd=f"sudo firewall-cmd --add-port={port}/tcp --permanent",
+    )
+    log.info(f"add port response: {out}")
+    if out is False:
+        raise Exception(f"firewalld add port failed for port {port}")
+    node.exec_command(
+        sudo=True,
+        cmd="sudo firewall-cmd --reload",
+    )
+    node.exec_command(
+        sudo=True,
+        cmd="sudo systemctl restart firewalld.service",
+    )
+    node.exec_command(
+        sudo=True,
+        cmd="sudo systemctl status firewalld.service",
+    )
+    node.exec_command(
+        sudo=True,
+        cmd="firewall-cmd --list-ports",
+    )
