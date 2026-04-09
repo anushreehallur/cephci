@@ -36,6 +36,7 @@ globals:
           - smb
       node6:
         role:
+          - mds
           - smb
       node7:
         role:
