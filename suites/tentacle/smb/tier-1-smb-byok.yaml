@@ -126,9 +126,9 @@ tests:
         path: "/"
 
   - test:
-      name: Verify IO read/write operations on encrypted shares through CIFS mount
-      desc: Verify IO read/write operations on encrypted shares through CIFS mount
-      module: smb_byok_ceph_fuse_operations.py
+      name: Verify IO read write operations on encrypted shares through CIFS mount
+      desc: Verify IO read write operations on encrypted shares through CIFS mount
+      module: smb_byok_ceph_fs_operations.py
       polarion-id: CEPH-83627656
       config:
         smb_cluster_id: smb1
@@ -137,38 +137,38 @@ tests:
         path: "/"
 
   - test:
-      name: Test ceph-fuse mount and verify data is encrypted on share.
-      desc: Test ceph-fuse mount and verify data is encrypted on share.
+      name: Test cephfs kernel mount and verify data is encrypted on share.
+      desc: Test cephfs kernel mount and verify data is encrypted on share.
       module: smb_byok_cifs_operations.py
       polarion-id: CEPH-83632299
       config:
         smb_cluster_id: smb1
         cifs_mount_point: /mnt/smb
-        byok_operation: test_ceph_fuse_mount
+        byok_operation: test_ceph_fs_mount
         path: "/"
 
   - test:
-      name: Verify IO read/write operations fail on encrypted shares through Ceph-fuse mount
-      desc: Verify IO read/write operations fail on encrypted shares through Ceph-fuse mount
-      module: smb_byok_ceph_fuse_operations.py
+      name: Verify IO read write operations fail on encrypted shares through Ceph-fs mount
+      desc: Verify IO read write operations fail on encrypted shares through Ceph-fs mount
+      module: smb_byok_ceph_fs_operations.py
       polarion-id: CEPH-83632299
       config:
         smb_cluster_id: smb1
         mount_point: /mnt/mount
         sub_dir: /volumes/smb/sv1
-        byok_operation: test_io_ceph_fuse_mount
+        byok_operation: test_io_ceph_fs_mount
         path: "/"
 
   - test:
-      name: Verify file operations fail on encrypted shares through Ceph-fuse mount
-      desc: Verify file operations fail on encrypted shares through Ceph-fuse mount
-      module: smb_byok_ceph_fuse_operations.py
+      name: Verify file operations fail on encrypted shares through Ceph-fs mount
+      desc: Verify file operations fail on encrypted shares through Ceph-fs mount
+      module: smb_byok_ceph_fs_operations.py
       polarion-id: CEPH-83632299
       config:
         smb_cluster_id: smb1
         mount_point: /mnt/mount
         sub_dir: /volumes/smb/sv1
-        byok_operation: test_io_ceph_fuse_mount
+        byok_operation: test_io_ceph_fs_mount
         path: "/"
 
   - test:

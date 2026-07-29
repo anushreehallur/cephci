@@ -52,11 +52,11 @@ def run(ceph_cluster, **kw):
 
     try:
 
-        if byok_operation == "test_ceph_fuse_mount":
+        if byok_operation == "test_ceph_fs_mount":
             log.info("mount share using kernel mount")
             samba_kernel_mount(client, mount_point, installer_node.ip_address, sub_dir)
 
-        elif byok_operation == "test_io_ceph_fuse_mount":
+        elif byok_operation == "test_io_ceph_fs_mount":
             rc = client.exec_command(
                 sudo=True,
                 cmd=f"dd if=/dev/zero of={mount_point}/ceph_file1 bs=600M count=1",
@@ -67,7 +67,7 @@ def run(ceph_cluster, **kw):
                     "Write operation should fail, but did not fail."
                 )
 
-        elif byok_operation == "test_file_ops_ceph_fuse_mount":
+        elif byok_operation == "test_file_ops_ceph_fs_mount":
             rc = client.exec_command(
                 sudo=True,
                 cmd=f"mkdir {mount_point}/ceph_file1",
@@ -79,7 +79,7 @@ def run(ceph_cluster, **kw):
                 )
 
     except Exception as e:
-        log.error(f"Failed to perform quota operations {byok_operation} : {e}")
+        log.error(f"Failed to perform byok operations {byok_operation} : {e}")
         return 1
     finally:
         if mount_cleanup:

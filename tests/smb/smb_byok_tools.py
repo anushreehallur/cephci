@@ -270,7 +270,7 @@ def deploy_samba_service_with_byok(
 
     for spec in smb_spec:
         if spec["resource_type"] == "ceph.smb.cluster":
-            spec.extend(keybridge_dict)
+            spec.update(keybridge_dict)
         elif spec["resource_type"] == "ceph.smb.share":
             if spec["cephfs"]["fscrypt_key"]["scope"] == "kmip":
                 spec["cephfs"]["fscrypt_key"]["name"] = fscrypt_key_name

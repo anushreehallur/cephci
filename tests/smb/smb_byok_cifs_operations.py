@@ -32,10 +32,14 @@ def run(ceph_cluster, **kw):
     # Get smb cluster id
     smb_cluster_id = config.get("smb_cluster_id")
 
-    # Get smb standalone user names
-    smb_user1_name = config.get("smb_user1_name")
-    smb_user2_name = config.get("smb_user2_name")
-    smb_user3_name = config.get("smb_user3_name")
+    # Get smb standalone user names and passwords
+    smb_user1_name = config.get("smb_user1_name", "user1")
+    smb_user2_name = config.get("smb_user2_name", "user2")
+    smb_user3_name = config.get("smb_user3_name", "user3")
+    smb_user1_password = config.get("smb_user1_password", "passwd")
+    smb_user2_password = config.get("smb_user2_name", "passwd")
+    smb_user3_password = config.get("smb_user3_name", "passwd")
+    authmode = config.get("authmode", "user")
 
     # Check smb cluster
     check_smb_cluster(installer_node, smb_cluster_id)
@@ -50,19 +54,6 @@ def run(ceph_cluster, **kw):
 
     # Get domain_realm
     domain_realm = config.get("domain_realm", None)
-
-    # Get auth mode
-    cluster_resource = ceph_smb_show(installer_node, smb_resource="ceph.smb.cluster")
-    authmode = cluster_resource["authmode"]
-
-    # Get user_group name and password
-    users_groups = ceph_smb_show(ceph_smb_show, smb_resource="ceph.smb.usersgroups")
-    if users_groups["values"]["users"]["name"] == smb_user1_name:
-        smb_user1_password = users_groups["values"]["users"]["password"]
-    if users_groups["values"]["users"]["name"] == smb_user2_name:
-        smb_user2_password = users_groups["values"]["users"]["password"]
-    if users_groups["values"]["users"]["name"] == smb_user3_name:
-        smb_user3_password = users_groups["values"]["users"]["password"]
 
     # Get byok operations to perform
     byok_operation = config.get("byok_operation")
