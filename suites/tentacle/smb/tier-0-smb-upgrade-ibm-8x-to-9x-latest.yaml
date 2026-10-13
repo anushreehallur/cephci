@@ -70,7 +70,6 @@ tests:
         id: client.1
         node: node4
         install_packages:
-          - ceph-common
           - cifs-utils
           - samba-client
       copy_admin_keyring: true
